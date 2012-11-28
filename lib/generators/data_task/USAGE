@@ -1,0 +1,9 @@
+Description:
+    Generates a migration class to be executed as a data task. This uses the schema_migrations
+    table to ensure that all data tasks are run once and only once.
+
+Example:
+    rails generate data_task MigrateSomeData
+
+    This will create:
+        db/data_tasks/20120822023011_migrate_some_data.rb

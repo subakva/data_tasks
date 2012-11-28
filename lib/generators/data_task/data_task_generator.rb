@@ -1,10 +1,10 @@
-class ReleaseTaskGenerator < Rails::Generators::NamedBase
+class DataTaskGenerator < Rails::Generators::NamedBase
   include Rails::Generators::Migration
 
   source_root File.expand_path('../templates', __FILE__)
 
   def create_migration_file
-    migration_template "release_task.rb", "db/release_tasks/#{file_name}.rb"
+    migration_template "data_task.rb", "db/data_tasks/#{file_name}.rb"
   end
 
   def self.next_migration_number(dirname) #:nodoc:

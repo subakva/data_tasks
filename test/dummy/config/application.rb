@@ -10,7 +10,7 @@ require "active_record/railtie"
 # require "rails/test_unit/railtie"
 
 Bundler.require
-require "release_me"
+require "data_tasks"
 
 module Dummy
   class Application < Rails::Application

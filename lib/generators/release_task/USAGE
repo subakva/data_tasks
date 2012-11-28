@@ -1,9 +1,0 @@
-Description:
-    Generates a migration class to be executed as a release task. This uses the schema_migrations
-    table to ensure that all release tasks are run once and only once.
-
-Example:
-    rails generate release_task DoSomethingAfterRelease
-
-    This will create:
-        db/release_tasks/20120822023011_do_something_after_release.rb

@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class ReleaseMeTest < ActiveSupport::TestCase
+class DataTaskTest < ActiveSupport::TestCase
 
   def execute(command)
-    puts "\n=> Running: \"#{command}\"" #if ENV['VERBOSE']
+    Rails.logger.debug "=> Running: \"#{command}\""
     `#{command}`
   end
 
@@ -20,7 +20,7 @@ class ReleaseMeTest < ActiveSupport::TestCase
   def setup
     @dummy_dir = File.join('test', 'dummy')
     @dummy_tmp_dir = File.join('tmp')
-    @dummy_task_dir = File.join('db', 'release_tasks')
+    @dummy_task_dir = File.join('db', 'data_tasks')
     @dummy_migration_dir = File.join('db', 'migrate')
     @dummy_models_dir = File.join('app', 'models')
 
@@ -52,11 +52,11 @@ class ReleaseMeTest < ActiveSupport::TestCase
     FileUtils.mv(tmp_filename, filename)
   end
 
-  test 'runs a release task with a rake task' do
+  test 'runs a data task with a rake task' do
     in_dummy_app do
       execute("rails generate model Farmer name:string --fixture false")
       execute("rake db:drop db:create db:migrate")
-      execute("rails generate release_task add_farmer")
+      execute("rails generate data_task add_farmer")
 
       filename = Dir[File.join(@dummy_task_dir, '*add_farmer*')].first
       insert_in_file(filename, 'class Farmer < ActiveRecord::Base; end', after: /class AddFarmer/)
@@ -66,7 +66,7 @@ class ReleaseMeTest < ActiveSupport::TestCase
         'farmer.save!'
       ], after: /say_with_time/)
 
-      execute("rake release:migrate")
+      execute("rake data:migrate")
       farmer_name = execute(%{rails runner "puts Farmer.find_by_name('Al').try(:name)"}).strip
       assert_equal 'Al', farmer_name
     end
@@ -81,22 +81,22 @@ class ReleaseMeTest < ActiveSupport::TestCase
     in_dummy_app do
       execute("rails generate model Record --fixture false")
       execute("rake db:drop db:create db:migrate")
-      execute("rails generate release_task insert_record")
+      execute("rails generate data_task insert_record")
 
       filename = Dir[File.join(@dummy_task_dir, '*insert_record*')].first
       insert_in_file(filename, 'class Record < ActiveRecord::Base; end', after: /class InsertRecord/)
       insert_in_file(filename, 'Record.create!', after: /say_with_time/)
-      execute("rake release:migrate")
-      execute("rake release:migrate")
+      execute("rake data:migrate")
+      execute("rake data:migrate")
 
       record_count = execute(%{rails runner "puts Record.count"}).strip
       assert_equal '1', record_count
     end
   end
 
-  test "generates a new release task" do
+  test "generates a new data task" do
     in_dummy_app do
-      execute("rails generate release_task do_something_awesome")
+      execute("rails generate data_task do_something_awesome")
 
       assert_directory @dummy_task_dir
 
