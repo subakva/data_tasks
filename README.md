@@ -32,6 +32,24 @@ Run all pending data tasks with rake:
 
     rake data:migrate
 
+## Common Problems
+
+If you're running your Rails processes in threadsafe mode, you'll get errors about undefined
+constants when trying to access model classes. You'll need to disable while running
+rake tasks. In your environment file (ex. `config/environments/production.rb`), change:
+
+    config.threadsafe!
+
+to:
+
+    config.threadsafe! unless $rails_rake_task
+
+
+## Future
+
+ * Add a capistrano hook to run data migrations after schema migrations
+ * Add a heroku-san deployment strategy
+
 ## Contributing
 
 1. Fork it
