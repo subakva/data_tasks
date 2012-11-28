@@ -44,6 +44,17 @@ to:
 
     config.threadsafe! unless $rails_rake_task
 
+If you don't want to make that change, you can explicitly load the required model classes
+inside the migration class, or define stub model classes. For example, if you wanted to
+add a new SideHatch record in the migration, you could define:
+
+    class SideHatch < ActiveRecord::Base; end
+
+    class CreateSideHatch < ActiveRecord::Migration
+      def up
+        SideHatch.create!(size: 49)
+      end
+    end
 
 ## Future
 
