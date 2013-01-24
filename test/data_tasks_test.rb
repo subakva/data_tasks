@@ -52,6 +52,18 @@ class DataTaskTest < ActiveSupport::TestCase
     FileUtils.mv(tmp_filename, filename)
   end
 
+  def prepare_app_for_record_migration
+    in_dummy_app do
+      execute("rails generate model Record --fixture false")
+      execute("rake db:drop db:create db:migrate")
+      execute("rails generate data_task insert_record")
+
+      filename = Dir[File.join(@dummy_task_dir, '*insert_record*')].first
+      insert_in_file(filename, 'class Record < ActiveRecord::Base; end', after: /class InsertRecord/)
+      insert_in_file(filename, 'Record.create!', after: /say_with_time/)
+    end
+  end
+
   test 'runs a data task with a rake task' do
     in_dummy_app do
       execute("rails generate model Farmer name:string --fixture false")
@@ -73,19 +85,32 @@ class DataTaskTest < ActiveSupport::TestCase
 
   end
 
-  test 'does not interfere with database rollback' do
+  test 'provides ability to assume migrations have already run' do
+    prepare_app_for_record_migration
+
+    in_dummy_app do
+      execute("rake data:assume_migrated")
+      execute("rake data:migrate")
+
+      record_count = execute(%{rails runner "puts Record.count"}).strip
+      assert_equal '0', record_count
+    end
+  end
+
+  test 'does not interfere with schema rollback' do
     pending 'Implement the test'
   end
 
   test 'does not run the same task twice' do
+    prepare_app_for_record_migration
     in_dummy_app do
-      execute("rails generate model Record --fixture false")
-      execute("rake db:drop db:create db:migrate")
-      execute("rails generate data_task insert_record")
+      # execute("rails generate model Record --fixture false")
+      # execute("rake db:drop db:create db:migrate")
+      # execute("rails generate data_task insert_record")
 
-      filename = Dir[File.join(@dummy_task_dir, '*insert_record*')].first
-      insert_in_file(filename, 'class Record < ActiveRecord::Base; end', after: /class InsertRecord/)
-      insert_in_file(filename, 'Record.create!', after: /say_with_time/)
+      # filename = Dir[File.join(@dummy_task_dir, '*insert_record*')].first
+      # insert_in_file(filename, 'class Record < ActiveRecord::Base; end', after: /class InsertRecord/)
+      # insert_in_file(filename, 'Record.create!', after: /say_with_time/)
       execute("rake data:migrate")
       execute("rake data:migrate")
 
