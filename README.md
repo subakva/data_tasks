@@ -32,6 +32,11 @@ Run all pending data tasks with rake:
 
     rake data:migrate
 
+When re-building an empty development database with no data, you probably want to skip running the data tasks. To mark
+all pending tasks complete:
+
+    rake data:assume_migrated
+
 ## Common Problems
 
 If you're running your Rails processes in threadsafe mode, you'll get errors about undefined
